@@ -1,0 +1,97 @@
+// WALZ EXPLOIT - Premium Cyberpunk Panel
+// Database Schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+// License Keys for Authentication
+model LicenseKey {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  type        String   // "single" or "multi"
+  maxUses     Int      @default(1)
+  currentUses Int      @default(0)
+  isActive    Boolean  @default(true)
+  expiresAt   DateTime?
+  createdAt   DateTime @default(now())
+  createdBy   String?  // Admin ID
+  users       User[]
+}
+
+// Users who logged in with license keys
+model User {
+  id           String     @id @default(cuid())
+  licenseKeyId String
+  licenseKey   LicenseKey @relation(fields: [licenseKeyId], references: [id])
+  sessionId    String     @unique
+  lastActive   DateTime   @default(now())
+  isAdmin      Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  bots         Bot[]
+  sessions     Session[]
+}
+
+// Active Sessions
+model Session {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  token     String   @unique
+  ipAddress String?
+  userAgent String?
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+// Bot Processes
+model Bot {
+  id          String   @id @default(cuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+  name        String
+  type        String   // "whatsapp", "telegram", "python", "nodejs", "shell"
+  scriptPath  String
+  status      String   @default("stopped") // "running", "stopped", "error"
+  pid         Int?
+  startedAt   DateTime?
+  stoppedAt   DateTime?
+  createdAt   DateTime @default(now())
+  logs        BotLog[]
+}
+
+// Bot Logs
+model BotLog {
+  id        String   @id @default(cuid())
+  botId     String
+  bot       Bot      @relation(fields: [botId], references: [id])
+  message   String
+  type      String   // "stdout", "stderr", "system"
+  timestamp DateTime @default(now())
+}
+
+// Files
+model File {
+  id          String   @id @default(cuid())
+  name        String
+  path        String
+  type        String   // "file" or "directory"
+  size        Int?
+  mimeType    String?
+  content     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Admin Settings
+model Setting {
+  id        String   @id @default(cuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}

@@ -1,0 +1,21 @@
+{
+  "name": "nexus-pro-v5",
+  "version": "5.0.0",
+  "description": "Professional WhatsApp Bot Controller with Realtime Console",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "socket.io": "^4.7.5",
+    "multer": "^1.4.5-lts.1",
+    "adm-zip": "^0.5.10",
+    "mongoose": "^8.2.0"
+  },
+  "engines": {
+    "node": "20.x"
+  },
+  "author": "Gemini",
+  "license": "MIT"
+}
